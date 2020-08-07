@@ -3,7 +3,6 @@
 library(tidyverse)
 library(plyr)
 
-setwd("C:\\Users\\hzhan\\Documents\\Dr.Cusanovich\\data\\sci_atac_drop\\test_blocking_conditions\\cell_bc_frequency")
 # table = read_tsv("all_cells.indextable.txt", col_names = FALSE)
 index_block = "Blocking_oligo.readcounts.readdepth.cells.indextable.txt"
 index_decoy = "DecoyDNA.readcounts.readdepth.cells.indextable.txt"
