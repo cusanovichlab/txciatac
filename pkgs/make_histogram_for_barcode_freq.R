@@ -2,7 +2,6 @@
 library(tidyverse)
 library(plyr)
 
-setwd("C:\\Users\\hzhan\\Documents\\Dr.Cusanovich\\data\\sci_atac_drop\\test_blocking_conditions\\cell_bc_frequency")
 # table = read_tsv("all_cells.indextable.txt", col_names = FALSE)
 table = read_tsv("all.cells_scidrop.Blocking_oligo.readcounts.readdepth.cells.indextable.txt", col_names = FALSE)
 
