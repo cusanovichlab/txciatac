@@ -1,4 +1,3 @@
-setwd("C:\\Users\\hzhan\\Documents\\Dr.Cusanovich\\script\\scATAC\\20200716_sci-drop-atac-100k\\samplesheets")
 library(tidyverse)
 
 indextb = read_tsv("make_indextable_samplesheet.txt", col_names = F)
