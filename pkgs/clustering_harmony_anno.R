@@ -1,5 +1,3 @@
-setwd("C:\\Users\\hzhan\\Documents\\Dr.Cusanovich\\data\\sci_atac_drop\\test_blocking_conditions\\mouse_lung_clustering")
-
 options(stringsAsFactors = FALSE)
 library(tidyverse)
 library(Matrix)
