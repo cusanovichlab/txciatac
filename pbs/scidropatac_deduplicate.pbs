@@ -1,0 +1,75 @@
+#!/bin/bash
+
+### set the job name
+#PBS -N scidrop
+#PBS -l select=1:ncpus=14:mem=84gb:pcmem=6gb
+#PBS -l place=pack:shared
+#PBS -l pvmem=168gb
+
+# Maximum CPU and clock time per job
+#PBS -l cput=80:00:0
+
+### Wall time is the total length of realtime that a script will be on the cluster before being stoped
+#PBS -l walltime=10:00:0
+
+# Submit an array of jobs to run the script multiple times
+###PBS -J 1-100
+
+# Which queue should we use?
+# The queue determines how quickly nodes a aquired to run a job
+# High and standard priority use group time
+# Windfall uses no time, but is the lowest priority for getting nodes
+###PBS -q oc_high_pri
+#PBS -q oc_standard
+###PBS -q oc_windfall
+
+
+# Ensure your time gets charged to the group
+#PBS -W group_list=cusanovichlab
+# Pass your environment variables to the pbs job
+#PBS -V
+# Join standard out and standard error messages
+#PBS -j oe
+
+### run your excutable program with begin and end date and time output
+date
+# module load python/2.7/2.7.14
+module load bowtie2/2.2.9
+module load samtools/1.4
+#############################
+##EDIT THESE AS NEEDED:
+#############################
+OUTDIR=OUTDIR
+base=base
+fastq1=fastq1
+fastq2=fastq2
+genome_dir=/xdisk/darrenc/mig2020/rsgrps/cusanovichlab/references/bowtie/hg19_mm9/hg19_mm9
+#############################
+mkdir $OUTDIR/bams
+mkdir $OUTDIR/reports
+
+date
+echo 'trimming adaptors...'
+java -Xmx1G -jar /home/u23/haozhang1/sciatac_pipeline/Trimmomatic-0.36/trimmomatic-0.36.jar \
+PE \
+-threads 24 \
+$OUTDIR/fastqs/$fastq1 $OUTDIR/fastqs/$fastq2 $OUTDIR/fastqs/${base}_trimmed_R1_paired.fq.gz $OUTDIR/fastqs/${base}_trimmed_R1_unpaired.fq.gz $OUTDIR/fastqs/${base}_trimmed_R2_paired.fq.gz $OUTDIR/fastqs/${base}_trimmed_R2_unpaired.fq.gz \
+ILLUMINACLIP:/home/u23/haozhang1/sciatac_pipeline/Trimmomatic-0.36/adapters/iTSM-PE.fa:2:30:10:1:true TRAILING:3 SLIDINGWINDOW:4:10 MINLEN:20 \
+2> $OUTDIR/reports/${base}_trimmomatic.log;
+
+echo 'mapping reads...'
+bowtie2 -p 8 -X 2000 -3 1 -x $genome_dir -1 $OUTDIR/fastqs/${base}_trimmed_R1_paired.fq.gz -2 $OUTDIR/fastqs/${base}_trimmed_R2_paired.fq.gz 2> $OUTDIR/reports/${base}.bowtie2.log | samtools view -bS - > $OUTDIR/bams/${base}.bam
+samtools view -h -f3 -F12 -q10 $OUTDIR/bams/${base}.bam | grep -v '[0-9]'$'\t'hg19chrM | grep -v '[0-9]'$'\t'mm9chrM | grep -v '[0-9]'$'\t'chrGL | grep -v '[0-9]'$'\t'chrNC | grep -v '[0-9]'$'\t'chrhs | grep -v '[0-9]'$'\t'chr'*'_random$'\t' | samtools view -Su - | samtools sort -@ 16 -T $OUTDIR/bams/${base}.sorttemp -o $OUTDIR/bams/${base}.q10.sort.bam
+
+echo 'deduplicating...'
+python /home/u23/haozhang1/sciatac_pipeline/src/sc_atac_true_dedup.py $OUTDIR/bams/${base}.q10.sort.bam $OUTDIR/bams/${base}.q10.sort.dedup.bam
+
+echo 'indexing dedup.bam...'
+samtools index $OUTDIR/bams/${base}.q10.sort.dedup.bam
+
+echo 'generating deduplicate counter report...'
+python /home/u23/haozhang1/sciatac_pipeline/src/duplicate_counter.py -B $OUTDIR/bams/${base}.q10.sort.bam -D $OUTDIR/bams/${base}.q10.sort.dedup.bam -O $OUTDIR/reports/${base}.deduplicate_counter_results.txt
+gzip $OUTDIR/fastqs/$fastq1
+gzip $OUTDIR/fastqs/$fastq2
+echo 'done'
+date

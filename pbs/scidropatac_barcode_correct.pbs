@@ -1,0 +1,59 @@
+#!/bin/bash
+
+### set the job name
+#PBS -N scidrop
+#PBS -l select=1:ncpus=28:mem=168gb:pcmem=6gb
+#PBS -l place=pack:shared
+#PBS -l pvmem=168gb
+
+# Maximum CPU and clock time per job
+###PBS -l cput=200:00:0
+
+### Wall time is the total length of realtime that a script will be on the cluster before being stoped
+#PBS -l walltime=24:00:0
+
+# Submit an array of jobs to run the script multiple times
+###PBS -J 1-100
+
+# Which queue should we use?
+# The queue determines how quickly nodes a aquired to run a job
+# High and standard priority use group time
+# Windfall uses no time, but is the lowest priority for getting nodes
+###PBS -q oc_high_pri
+#PBS -q oc_standard
+###PBS -q oc_windfall
+
+
+# Ensure your time gets charged to the group
+#PBS -W group_list=cusanovichlab
+# Pass your environment variables to the pbs job
+#PBS -V
+# Join standard out and standard error messages
+#PBS -j oe
+echo 'running'
+
+### run your excutable program with begin and end date and time output
+date
+### if in miniconda pyhton3 env
+### use ' conda deactivate ' to exit environment
+
+### load python 2
+#module purge
+module load python/2.7/2.7.14
+
+OUTDIR=OUTDIR
+samplesheet=samplesheet
+fastq1=fastq1
+fastq2=fastq2
+output=output
+# output2=output2
+stats=stats
+# flag --wells_384 has a bug, need to be fixed
+# for sci, i7 and P7 are numbered by row-wise, i5 and P5 are numbered by column-wise
+# for drop seq, tn5 index are row-wise
+pypy /xdisk/darrenc/mig2020/rsgrps/cusanovichlab/sbin/scidropatac/scidropatac_barcode_correct.py \
+--samplesheet $OUTDIR/samplesheet/$samplesheet \
+-1 $OUTDIR/fastqs/temp/$fastq1 -2 $OUTDIR/fastqs/temp/$fastq2 \
+-o $OUTDIR/fastqs/$output \
+--stats_out $OUTDIR/fastqs/$stats -X
+date

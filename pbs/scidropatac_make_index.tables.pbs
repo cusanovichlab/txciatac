@@ -1,0 +1,47 @@
+#!/bin/bash
+#PBS -q standard
+#PBS -l select=1:ncpus=1:mem=6gb:pcmem=6gb
+#PBS -l pvmem=168gb
+#PBS -N make_index_table
+#PBS -W group_list=cusanovichlab
+#PBS -l place=pack:shared
+#PBS -l walltime=24:00:00
+### cput ("total cputime") = walltime * ncpus
+##PBS -l cput=16:00:00 
+
+# Submit an array of jobs
+#PBS -J 1-12
+###PBS -l jobtype=serial
+
+#############################
+##EDIT THESE AS NEEDED:
+#############################
+
+date
+# module load R/3.6.1
+
+#############################
+##EDIT THESE AS NEEDED:
+#############################
+OUTDIR=/xdisk/darrenc/mig2020/rsgrps/cusanovichlab/projects/sciATAC_projects/20200716_sci_drop_atac_100k
+
+declare -i x='PBS_ARRAY_INDEX'
+
+base=$(head -$x $OUTDIR/samplesheet/make_indextable_samplesheet.txt |tail -1 | cut -f 1)
+SAMPLE=$(head -$x $OUTDIR/samplesheet/make_indextable_samplesheet.txt |tail -1 | cut -f 2)
+INDICES=$(head -$x $OUTDIR/samplesheet/make_indextable_samplesheet.txt |tail -1 | cut -f 3)
+
+echo "base = $base, SAMPLE = $SAMPLE, INDICES = $INDICES"
+
+#############################
+mkdir $OUTDIR/bams
+mkdir $OUTDIR/reports
+mkdir $OUTDIR/reports/indices_table
+
+date
+echo 'generating indices table...'
+# make indice table-generate a table with all the combination of index used in your experiment
+python /xdisk/darrenc/mig2020/rsgrps/cusanovichlab/sbin/sciATAC/sci_atac_drop_index_table_maker.py $INDICES $SAMPLE --output $OUTDIR/reports/indices_table/${base}_${SAMPLE}_indices_table.txt
+
+echo 'done'
+date
