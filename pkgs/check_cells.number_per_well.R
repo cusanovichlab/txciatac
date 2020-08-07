@@ -1,4 +1,3 @@
-setwd("C:\\Users\\hzhan\\Documents\\Dr.Cusanovich\\data\\sci_atac_drop\\test_blocking_conditions\\cell_bc_frequency")
 library(tidyverse)
 library(pheatmap)
 library(plyr)
