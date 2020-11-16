@@ -1,5 +1,5 @@
 # scidropatac
-### The scripts used in this repo are saved in 'pkgs', and samplesheets are saved in 'samplesheets'
+### The scripts used in this repo are saved in 'pkgs', samplesheets are saved in 'samplesheets', and pbs files are saved in 'pbs'
 ## Generate FASTQ files
 ```
 OUTDIR=/PATH/To/OUTDIR
@@ -44,6 +44,107 @@ outprefix=$OUTDIR/fastqs/temp/${base}_tn5.bc
 python3.6 scidropatac_add_tn5.bc.py $OUTDIR/fastqs/temp/$fastq1 $OUTDIR/fastqs/temp/$fastq2 $outprefix
 done
 ```
+## Correct barcodes
+### python script written using pyhton 2
+### need to check the samplesheet, if there are quotation marks in it, you need remove them before running the codes
+### samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
+```
+sample_id	ranges
+bcfixed	1-737280:1-8,13-20,25-32,37-44,49-56,61-68,73-80,85-92
+```
+### Correct barcodes
+```
+mkdir $OUTDIR/scripts
 
+for file in $OUTDIR/fastqs/temp/*_tn5.bc.R1.fastq
+do
+base=$(basename ${file} _tn5.bc.R1.fastq)
+fastq1=${base}_tn5.bc.R1.fastq
+fastq2=${base}_tn5.bc.R2.fastq
+samplesheet=fixbc_samplesheet.txt
+stats=${base}_bc.fixed.stats
+sed "4 s/scidrop/${base}_fixbc/" scidropatac_barcode_correct.pbs > $OUTDIR/scripts/${base}_bc_correct.sh
+sed -i "44 s~OUTDIR~$OUTDIR~2" $OUTDIR/scripts/${base}_bc_correct.sh
+sed -i "45 s/samplesheet/$samplesheet/2" $OUTDIR/scripts/${base}_bc_correct.sh
+sed -i "46 s/fastq1/$fastq1/2" $OUTDIR/scripts/${base}_bc_correct.sh
+sed -i "47 s/fastq2/$fastq2/2" $OUTDIR/scripts/${base}_bc_correct.sh
+sed -i "48 s/output/$base/2" $OUTDIR/scripts/${base}_bc_correct.sh
+sed -i "50 s/stats/$stats/2" $OUTDIR/scripts/${base}_bc_correct.sh
+qsub $OUTDIR/scripts/bc_correct_${base}.sh
+done
+```
+### mv unknown fastq to unknown folder
+```
+mkdir $OUTDIR/fastqs/unknown
+mv $OUTDIR/fastqs/*.Unknown_R*.fastq $OUTDIR/fastqs/unknown/
+```
+## deduplicate
+### using Python 2.7.16 
+```
+for file in $OUTDIR/fastqs/*.bcfixed_R1.fastq
+do
+base=$(basename ${file} .bcfixed_R1.fastq)
+fastq1=${base}.bcfixed_R1.fastq
+fastq2=${base}.bcfixed_R2.fastq
+sed "4 s/scidrop/${base}_duplicate/" scidropatac_deduplicate.pbs > $OUTDIR/scripts/${base}_deduplicate.sh
+sed -i "42 s~OUTDIR~$OUTDIR~2" $OUTDIR/scripts/${base}_deduplicate.sh
+sed -i "43 s/base/$base/2" $OUTDIR/scripts/${base}_deduplicate.sh
+sed -i "44 s/fastq1/$fastq1/2" $OUTDIR/scripts/${base}_deduplicate.sh
+sed -i "45 s/fastq2/$fastq2/2" $OUTDIR/scripts/${base}_deduplicate.sh
+qsub $OUTDIR/scripts/${base}_deduplicate.sh
+done
+```
+## make samplesheet to generate all possible index for each sample
+### e.g, sample name labeled by P7 index, sample name labeled by Tn5 barcodes, indices
+### the order of indices is: P7 barcode, 10x beads barcodes, Tn5 barcodes(row-wise)
+### an example samplesheet is saved in 'samplesheet' named as make_indextable_samplesheet.txt
+```
+scidrop.SBS100	decoy_true	1:1-737280:1-8,13-20,25-32,37-44
+scidrop.SBS100	decoy_pseudo	1:1-737280:9-12,21-24,33-36,45-48
+scidrop.SBS100	ice_true	1:1-737280:49-56,61-68,73-80,85-92
+scidrop.SBS100	ice_pseudo	1:1-737280:57-60,69-72,81-84,93-96
+scidrop.SBS800	decoy_true	2:1-737280:1-8,13-20,25-32,37-44
+scidrop.SBS800	decoy_pseudo	2:1-737280:9-12,21-24,33-36,45-48
+scidrop.SBS800	ice_true	2:1-737280:49-56,61-68,73-80,85-92
+scidrop.SBS800	ice_pseudo	2:1-737280:57-60,69-72,81-84,93-96
+```
+### Need to verify the Tn5 barcodes in the samplesheet using check_sample_well_id.R in 'pkg' folder
+### This R script will create a 8x12 matrix to resemble a 96-well plate. The sample name in each well should be consistent with the experimental setting.
+## Make index table using scidropatac_make_index.table.pbs
+### Need to change the number of jobs in line 13, which is equal to the number of lines in make_indextable_samplesheet.txt
+### Need to change the output dir in line 26
+### After changing the above lines, submit the pbs file using qsub
+```
+qsub $OUTDIR/scripts/scidropatac_make_index.tables.pbs
+```
+## combine all index tables
+```
+find $OUTDIR/reports/indices_table/*.txt  -printf "%f\n" |\
+sed 's/_/ /g' | awk '{print $1}'| sort | uniq >$OUTDIR/reports/indices_table/idx_base
 
+for base in `cat $OUTDIR/reports/indices_table/idx_base`
+do
+cat $OUTDIR/reports/indices_table/${base}*indices_table.txt >$OUTDIR/reports/indices_table/${base}_allsample.indextable.txt
+done
 
+# remove individual index table
+rm $OUTDIR/reports/indices_table/*indices_table.txt
+```
+## Create barnyard plots using pbs file: scidropatac_readcounter.pbs
+```
+hs_peaks=$hs_lung_peaks
+mm_peaks=$mm_lung_peaks
+
+for file in $OUTDIR/reports/indices_table/*_allsample.indextable.txt
+do
+base=$(basename ${file} _allsample.indextable.txt)
+sed "4 s/scidrop/${base}_readscount/" scidropatac_readcounter.pbs > $OUTDIR/scripts/${base}_readcounter.sh
+sed -i "41 s~OUTDIR~$OUTDIR~2" $OUTDIR/scripts/${base}_readcounter.sh
+sed -i "42 s/base/$base/2" $OUTDIR/scripts/${base}_readcounter.sh
+sed -i "43 s~hs_peaks~$hs_peaks~2" $OUTDIR/scripts/${base}_readcounter.sh
+sed -i "44 s~mm_peaks~$mm_peaks~2" $OUTDIR/scripts/${base}_readcounter.sh
+sed -i "45 s/index_table/${base}_allsample.indextable.txt/2" $OUTDIR/scripts/${base}_readcounter.sh
+qsub $OUTDIR/scripts/${base}_readcounter.sh
+done
+```
+## For clustering, please see R codes in harmony_clustering_anno.R
