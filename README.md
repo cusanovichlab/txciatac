@@ -53,7 +53,7 @@ done
 ### Samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
 ```
 sample_id	ranges
-bcfixed	1-737280:1-8,13-20,25-32,37-44,49-56,61-68,73-80,85-92
+bcfixed	1-737280:1-96
 ```
 ### Use scidropatac_barcode_correct.pbs as a template to generate the pbs files for each sample and run them parallelly
 ### Use pyhton 2.
