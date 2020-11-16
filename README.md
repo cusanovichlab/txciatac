@@ -14,7 +14,7 @@ bcl2fastq --runfolder-dir $bcl_dir \
 --ignore-missing-bcls \
 --no-lane-splitting
 ```
-## Demultiplexing FASTQ using P7 sample index
+## Demultiplexing FASTQ using P7 index
 ### pbs file: scidropatac_fastq_deconvoluter_by_sample_idx.py; use Python 3.6
 ```
 mkdir $OUTDIR/fastqs/temp
@@ -48,7 +48,7 @@ python3.6 scidropatac_add_tn5.bc.py $OUTDIR/fastqs/temp/$fastq1 $OUTDIR/fastqs/t
 done
 ```
 ## Correct barcodes
-### DO NOT demultiplex samples in this step
+### DO NOT demultiplex samples label by Tn5 barcodes in this step
 ### Need to check the samplesheet to make sure there is no quotation mark in it.
 ### Samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
 ```
@@ -98,7 +98,7 @@ sed -i "45 s/fastq2/$fastq2/2" $OUTDIR/scripts/${base}_deduplicate.sh
 qsub $OUTDIR/scripts/${base}_deduplicate.sh
 done
 ```
-## Demultiplex samples
+## Demultiplex samples labeled by Tn5 barcodes
 ### Create a samplesheet to assign the indices for each sample
 ### an example samplesheet is saved in 'samplesheet' named as make_indextable_samplesheet.txt
 ### column1: sample name labeled by P7 index; column2: sample name labeled by Tn5 barcodes; column3: indices
