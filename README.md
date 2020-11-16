@@ -26,7 +26,8 @@ output_prefix=$OUTDIR/fastqs/temp/scidrop
 
 python3.6 scidropatac_fastq_deconvoluter_by_sample_idx.py <(zcat $fastq1) <(zcat $fastq2) $index $output_prefix
 ```
-## Append tn5 barcode to the index line in FASTQ and remove the first 27 bases which are ME (19bp) and tn5 bc (8bp) from Read2
+## Append tn5 barcode
+### Tn5 barcodes are attached to Read2. This code will move the Tn5 bc from Read2 to the index line in FASTQ file.
 ### pbs file: scidropatac_add_tn5.bc.py; use Python 3.6
 ```
 # mv Unknown fastqs to unknown folder
@@ -47,8 +48,9 @@ python3.6 scidropatac_add_tn5.bc.py $OUTDIR/fastqs/temp/$fastq1 $OUTDIR/fastqs/t
 done
 ```
 ## Correct barcodes
-### need to check the samplesheet, if there are quotation marks in it, you need remove them before running the codes
+### need to check the samplesheet, if there are quotation marks in it, you need to remove them before running the following code
 ### samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
+### DO NOT demultiplex samples in this step
 ```
 sample_id	ranges
 bcfixed	1-737280:1-8,13-20,25-32,37-44,49-56,61-68,73-80,85-92
@@ -96,7 +98,7 @@ sed -i "45 s/fastq2/$fastq2/2" $OUTDIR/scripts/${base}_deduplicate.sh
 qsub $OUTDIR/scripts/${base}_deduplicate.sh
 done
 ```
-## Make index table to generate all possible index for each sample
+## Demultiplex samples
 ### Create a samplesheet to assign the indices for each sample
 ### an example samplesheet is saved in 'samplesheet' named as make_indextable_samplesheet.txt
 ### column1: sample name labeled by P7 index; column2: sample name labeled by Tn5 barcodes; column3: indices
