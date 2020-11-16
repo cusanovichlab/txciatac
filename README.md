@@ -48,7 +48,7 @@ python3.6 scidropatac_add_tn5.bc.py $OUTDIR/fastqs/temp/$fastq1 $OUTDIR/fastqs/t
 done
 ```
 ## Correct barcodes
-### DO NOT demultiplex samples label by Tn5 barcodes in this step
+### DO NOT demultiplex samples labeled by Tn5 barcodes in this step
 ### Need to check the samplesheet to make sure there is no quotation mark in it.
 ### Samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
 ```
