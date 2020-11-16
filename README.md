@@ -1,5 +1,5 @@
 # sci Drop ATAC-seq
-### The scripts used in this repo are saved in 'pkgs', samplesheets are saved in 'samplesheets', and pbs files are saved in 'pbs'
+#### The scripts used in this repo are saved in 'pkgs', samplesheets are saved in 'samplesheets', and pbs files are saved in 'pbs'
 ## Generate FASTQ files
 ```
 OUTDIR=/PATH/To/OUTDIR
@@ -48,15 +48,15 @@ python3.6 scidropatac_add_tn5.bc.py $OUTDIR/fastqs/temp/$fastq1 $OUTDIR/fastqs/t
 done
 ```
 ## Correct barcodes
-### need to check the samplesheet, if there are quotation marks in it, you need to remove them before running the following code
-### samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
 ### DO NOT demultiplex samples in this step
+### Need to check the samplesheet to make sure there is no quotation mark in it.
+### Samplesheet requires beads barcode and tn5 barcode (row-wise), eg.
 ```
 sample_id	ranges
 bcfixed	1-737280:1-8,13-20,25-32,37-44,49-56,61-68,73-80,85-92
 ```
-### Correct barcodes
-### pbs file: scidropatac_barcode_correct.pbs; use pyhton 2
+### Use scidropatac_barcode_correct.pbs as a template to generate the pbs files for each sample and run them parallelly
+### Use pyhton 2.
 ```
 mkdir $OUTDIR/scripts
 
@@ -114,7 +114,7 @@ scidrop.SBS800	ice_true	2:1-737280:49-56,61-68,73-80,85-92
 scidrop.SBS800	ice_pseudo	2:1-737280:57-60,69-72,81-84,93-96
 ```
 ### Need to verify the Tn5 barcodes in the samplesheet using check_sample_well_id.R in 'pkg' folder
-### This R script will create a 8x12 matrix to resemble a 96-well plate. The sample name in each well should be consistent with the experimental setting.
+#### This R script will create a 8x12 matrix to resemble a 96-well plate. The sample name in each well should be consistent with the experimental setting.
 ### Make index table using scidropatac_make_index.table.pbs
 #### Need to change the number of jobs in line 13, which is equal to the number of lines in make_indextable_samplesheet.txt
 #### Need to change the output dir in line 26
