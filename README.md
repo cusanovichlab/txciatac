@@ -80,7 +80,7 @@ done
 mkdir $OUTDIR/fastqs/unknown
 mv $OUTDIR/fastqs/*.Unknown_R*.fastq $OUTDIR/fastqs/unknown/
 ```
-## deduplicate
+## Deduplicate
 ### pbs file: scidropatac_deduplicate.pbs; use Python 2.7.16 
 ```
 for file in $OUTDIR/fastqs/*.bcfixed_R1.fastq
@@ -96,10 +96,11 @@ sed -i "45 s/fastq2/$fastq2/2" $OUTDIR/scripts/${base}_deduplicate.sh
 qsub $OUTDIR/scripts/${base}_deduplicate.sh
 done
 ```
-## make samplesheet to generate all possible index for each sample
-### e.g, sample name labeled by P7 index, sample name labeled by Tn5 barcodes, indices
-### the order of indices is: P7 barcode, 10x beads barcodes, Tn5 barcodes(row-wise)
+## Make index table to generate all possible index for each sample
+### Create a samplesheet to assign the indices for each sample
 ### an example samplesheet is saved in 'samplesheet' named as make_indextable_samplesheet.txt
+### column1: sample name labeled by P7 index; column2: sample name labeled by Tn5 barcodes; column3: indices
+### the order of indices is: P7 barcode:10x beads barcodes:Tn5 barcodes(row-wise)
 ```
 scidrop.SBS100	decoy_true	1:1-737280:1-8,13-20,25-32,37-44
 scidrop.SBS100	decoy_pseudo	1:1-737280:9-12,21-24,33-36,45-48
@@ -112,14 +113,14 @@ scidrop.SBS800	ice_pseudo	2:1-737280:57-60,69-72,81-84,93-96
 ```
 ### Need to verify the Tn5 barcodes in the samplesheet using check_sample_well_id.R in 'pkg' folder
 ### This R script will create a 8x12 matrix to resemble a 96-well plate. The sample name in each well should be consistent with the experimental setting.
-## Make index table using scidropatac_make_index.table.pbs
-### Need to change the number of jobs in line 13, which is equal to the number of lines in make_indextable_samplesheet.txt
-### Need to change the output dir in line 26
-### After changing the above lines, submit the pbs file using qsub
+### Make index table using scidropatac_make_index.table.pbs
+#### Need to change the number of jobs in line 13, which is equal to the number of lines in make_indextable_samplesheet.txt
+#### Need to change the output dir in line 26
+#### After changing the above lines, submit the pbs file using qsub
 ```
 qsub $OUTDIR/scripts/scidropatac_make_index.tables.pbs
 ```
-## combine all index tables
+### combine all index tables
 ```
 find $OUTDIR/reports/indices_table/*.txt  -printf "%f\n" |\
 sed 's/_/ /g' | awk '{print $1}'| sort | uniq >$OUTDIR/reports/indices_table/idx_base
