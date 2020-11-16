@@ -147,4 +147,4 @@ sed -i "45 s/index_table/${base}_allsample.indextable.txt/2" $OUTDIR/scripts/${b
 qsub $OUTDIR/scripts/${base}_readcounter.sh
 done
 ```
-## For clustering, please see R codes in harmony_clustering_anno.R
+## For clustering, please see R codes in harmony_clustering_anno_lung.R in 'pkg' folder
