@@ -66,7 +66,7 @@ We usually do not demultiplex samples at this step by providing all possible bar
 
 In the sample sheet, the value/range before ":" is the index position () of the P7 sample barcode, and the value/range after ":" is the index position () of the Tn5 barcode (row-wisely ordered on a 96-well plate).
 
-The output file name is in a format of ${base}.${sample id in samplesheet}_R1.fastq.gz
+The output file name is in a format of "${base}.${sample id in samplesheet}_R1.fastq.gz".
 ```
 samplesheet=$path/samplesheet_example/fixbc_samplesheet.txt
 ############################
