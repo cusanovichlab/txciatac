@@ -1,6 +1,7 @@
 args = commandArgs(TRUE)
 report = read.table(args[1],header=T)
 indextable = args[2]
+output = args[3]
 if(indextable != "None"){
   indices = read.table(indextable)
 }
@@ -39,15 +40,17 @@ picardcomp = function(c = 50,n = 100,m = 1, M = 10){
 
 deduped = which(report[,2] > report[,3])
 totalfrags = apply(report[deduped,2:3],1,function(x){picardcomp(x[2],x[1])})
+dereport = cbind(report[deduped,],totalfrags)
+write.table(dereport,paste0(output,".complexity_report.txt"),row.names=F,sep="\t",quote=F)
 
 if(indextable != "None"){
-  dereport = cbind(report[deduped,],totalfrags)
   commonind = intersect(dereport[,1],indices[,1])
   cleanindices = indices[match(commonind,indices[,1]),]
   cleanreport = dereport[match(commonind,dereport[,1]),]
 }
 
-pdf(sub("txt","pdf",args[1]))
+png(paste0(output,".dedup_plot.png"), width = 600, height = 1500)
+par(mfrow= c(3, 1))
 plot((report[,2]-report[,3])/report[,2],log10(report[,3]),xlab="Fraction PCR Duplicate",ylab="Log10(Unique Reads)",pch=20)
 plot(report[deduped,3]/totalfrags,log10(report[deduped,3]),xlab="Fraction Unique Molecules Observed",ylab="Log10(Unique Reads)",pch=20)
 if(indextable != "None"){
@@ -61,4 +64,3 @@ if(indextable != "None"){
   }
 }
 dev.off()
-

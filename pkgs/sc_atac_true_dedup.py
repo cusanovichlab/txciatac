@@ -37,3 +37,6 @@ for read in readsin:
     if read_id not in observed_reads:
         observed_reads.add(read_id)
         readsout.write(read)
+
+readsin.close()
+readsout.close()

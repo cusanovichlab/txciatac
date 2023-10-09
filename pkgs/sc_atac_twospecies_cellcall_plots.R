@@ -40,6 +40,8 @@ outtable[which(subsetmat[,3]/subsetmat[,2] >= 0.9),3] = "Human"
 outtable[which(subsetmat[,4]/subsetmat[,2] >= 0.9),3] = "Mouse"
 write.table(outtable,paste0(currexpt,".readdepth.cells.indextable.txt"),row.names=F,col.names=F,sep="\t",quote=F)
 
+nobkgdmat$Tag = factor(nobkgdmat$Tag)
+
 pdf(paste0(currexpt,".results.pdf"),height=8,width=8)
 par(mfrow=c(2,2))
 subsamples = levels(nobkgdmat$Tag)

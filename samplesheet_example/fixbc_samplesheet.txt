@@ -1,0 +1,2 @@
+sample_id	ranges
+bc_correct	1,4-6:1-96

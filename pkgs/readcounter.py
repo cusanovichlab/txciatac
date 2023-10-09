@@ -1,10 +1,12 @@
 import sys
 import os
 import pysam
+import pybedtools
+from pybedtools import BedTool
 
 #print len(sys.argv)
 if len(sys.argv) != 6:
-	sys.exit('Usage: python sc_atac_readcounter.py [Input Bam file] [Input Index table (NA if no table)] [Cell Type 1 BED] [Cell Type 2 BED] [Output file]')
+	sys.exit('Usage: python sc_atac_readcounter.py [Input Bam file] [Input Index table (NA if no table)] [Human Cell BED] [Mouse Cell BED] [Output file]')
 
 inputbam = sys.argv[1]
 indextable = sys.argv[2]
@@ -45,42 +47,59 @@ for read in  bamfile.fetch():
 			descriptor[tagger] = descdic[tagger]
 		except KeyError:
 			descriptor[tagger] = 'bkgd'
-	if 'hg19' in bamfile.getrname(read.reference_id):
+	if 'hg38' in bamfile.getrname(read.reference_id):
 		species1ct[tagger] += 1
-	if 'mm9' in bamfile.getrname(read.reference_id):
+	if 'mm10' in bamfile.getrname(read.reference_id):
 		species2ct[tagger] += 1
 
 bamfile.close()
 
-def lister(bedfile):
-        currfile = open(bedfile,'r')
-        currrecout = [line.strip().split()[0:3] for line in currfile]
-        currfile.close()
-        return currrecout
+# def lister(bedfile):
+#         currfile = open(bedfile,'r')
+#         currrecout = [line.strip().split()[0:3] for line in currfile]
+#         currfile.close()
+#         return currrecout
 
+# print "Counting celltype-specific reads..."
+# print "Building " + type1desc + " map..."
+# rec1list = lister(type1bed)
+# print "Building " + type2desc + " map..."
+# rec2list = lister(type2bed)
+# bamfile = pysam.Samfile(inputbam,'rb')
+
+bamfile = BedTool(inputbam)
 print "Counting celltype-specific reads..."
 print "Building " + type1desc + " map..."
-rec1list = lister(type1bed)
-print "Building " + type2desc + " map..."
-rec2list = lister(type2bed)
-bamfile = pysam.Samfile(inputbam,'rb')
+rec1list = BedTool(type1bed)
+inter1list = bamfile.intersect(rec1list, u=True, bed=True)
 
-def counter(bedtuple,countdic,labeler):
-	for rec in bedtuple:
-		reads = bamfile.fetch(rec[0], int(rec[1]), int(rec[2]))
-		for read in reads:
-			readname = read.qname.split(':')[0]
-			if 'CTF' in readname or 'AMBIG' in readname:
-				continue
-			countdic[readname] += 1
+print "Building " + type2desc + " map..."
+rec2list = BedTool(type2bed)
+inter2list = bamfile.intersect(rec2list, u=True, bed=True)
+
+# def counter(bedtuple,countdic,labeler):
+# 	for rec in bedtuple:
+# 		reads = bamfile.fetch(rec[0], int(rec[1]), int(rec[2]))
+# 		for read in reads:
+# 			readname = read.qname.split(':')[0]
+# 			if 'CTF' in readname or 'AMBIG' in readname:
+# 				continue
+# 			countdic[readname] += 1
+
+def counter(bedinter,countdic,labeler):
+	for read in bedinter:
+ 		readname = read[3].split(':')[0]
+ 		if 'CTF' in readname or 'AMBIG' in readname:
+			continue
+ 		countdic[readname] += 1
 
 print "Counting " + type1desc + " reads..."
-counter(rec1list,species1dhsct,type1desc)
+counter(inter1list,species1dhsct,type1desc)
 print "Counting " + type2desc + " reads..."
-counter(rec2list,species2dhsct,type2desc)
+counter(inter2list,species2dhsct,type2desc)
 
 outter = open(outfile,'w')
-print >> outter, 'Tag\tTotal\thg19\tmm9\t' + type1desc + '_DHS\t' + type2desc + '_DHS'
+print >> outter, 'Tag\tTotal\thg38\tmm10\t' + type1desc + '\t' + type2desc
 for tag in sorted(totalct.keys()):
 	print >> outter, tag + '\t' + descriptor[tag] + '\t' + str(totalct[tag]) + "\t" + str(species1ct[tag]) + '\t' + str(species2ct[tag]) + '\t' + str(species1dhsct[tag]) + '\t' + str(species2dhsct[tag])
 
