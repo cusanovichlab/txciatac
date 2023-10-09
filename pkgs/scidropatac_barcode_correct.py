@@ -188,23 +188,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Set up the right index set depending on the indices
-    sample_idx_whitelist = ['TAAGGCGA', 'CGTACTAG', 'AGGCAGAA', 'TCCTGAGC', 'GGACTCCT', 'TAGGCATG', 'CTCTCTAC', 'CAGAGAGG', 'GCTACGCT', 'CGAGGCTG', 'AAGAGGCA', 'GTAGAGGA']
-    gem_idx_whitelist = cell_bc
-    tn5_idx_whitelist = ['GAACCGCG', 'AGGTTATA', 'TCATCCTT', 'CTGCTTCC', 'GGTCACGA', 'AACTGTAG', 'GTGAATAT', 'ACAGGCGC', 'CATAGAGT', 'TGCGAGAC', 'GACGTCTT', 'AGTACTCC', 'TGGCCGGT', 'CAATTAAC', 'ATAATGTG', 'GCGGCACA', 'CTAGCGCT', 'TCGATATC', 'CGTCTGCG', 'TACTCATA', 'ACGCACCT', 'GTATGTTC', 'CGCTATGT', 'TATCGCAC', 'TCTGTTGG', 'CTCACCAA', 'TATTAGCT', 'CGCCGATC', 'TCTCTACT', 'CTCTCGTC', 'CCAAGTCT', 'TTGGACTC', 'GGCTTAAG', 'AATCCGGA', 'TAATACAG', 'CGGCGTGA', 'ATGTAAGT', 'GCACGGAC', 'GGTACCTT', 'AACGTTCC', 'GCAGAATT', 'ATGAGGCC', 'ACTAAGAT', 'GTCGGAGC', 'CCGCGGTT', 'TTATAACC', 'GGACTTGG', 'AAGTCCAA', 'ATCCACTG', 'GCTTGTCA', 'CAAGCTAG', 'TGGATCGA', 'AGTTCAGG', 'GACCTGAA', 'TGACGAAT', 'CAGTAGGC', 'AGCCTCAT', 'GATTCTGC', 'TCGTAGTG', 'CTACGACA', 'TAAGTGGT', 'CGGACAAC', 'ATATGGAT', 'GCGCAAGC', 'AAGATACT', 'GGAGCGTC', 'ATGGCATG', 'GCAATGCA', 'GTTCCAAT', 'ACCTTGGC', 'CTTATCGG', 'TCCGCTAA', 'GCTCATTG', 'ATCTGCCA', 'CTTGGTAT', 'TCCAACGC', 'CCGTGAAG', 'TTACAGGA', 'GGCATTCT', 'AATGCCTC', 'TACCGAGG', 'CGTTAGAA', 'CACGAGCG', 'TGTAGATA', 'GATCTATC', 'AGCTCGCT', 'CGGAACTG', 'TAAGGTCA', 'TTGCCTAG', 'CCATTCGA', 'ACACTAAG', 'GTGTCGGA', 'TTCCTGTT', 'CCTTCACC', 'GCCACAGG', 'ATTGTGAA']
+    sample_idx_whitelist = set(['TAAGGCGA', 'CGTACTAG', 'AGGCAGAA', 'TCCTGAGC', 'GGACTCCT', 'TAGGCATG', 'CTCTCTAC', 'CAGAGAGG', 'GCTACGCT', 'CGAGGCTG', 'AAGAGGCA', 'GTAGAGGA'])
+    gem_idx_whitelist = set(cell_bc)
+    tn5_idx_whitelist = set(['GAACCGCG', 'AGGTTATA', 'TCATCCTT', 'CTGCTTCC', 'GGTCACGA', 'AACTGTAG', 'GTGAATAT', 'ACAGGCGC', 'CATAGAGT', 'TGCGAGAC', 'GACGTCTT', 'AGTACTCC', 'TGGCCGGT', 'CAATTAAC', 'ATAATGTG', 'GCGGCACA', 'CTAGCGCT', 'TCGATATC', 'CGTCTGCG', 'TACTCATA', 'ACGCACCT', 'GTATGTTC', 'CGCTATGT', 'TATCGCAC', 'TCTGTTGG', 'CTCACCAA', 'TATTAGCT', 'CGCCGATC', 'TCTCTACT', 'CTCTCGTC', 'CCAAGTCT', 'TTGGACTC', 'GGCTTAAG', 'AATCCGGA', 'TAATACAG', 'CGGCGTGA', 'ATGTAAGT', 'GCACGGAC', 'GGTACCTT', 'AACGTTCC', 'GCAGAATT', 'ATGAGGCC', 'ACTAAGAT', 'GTCGGAGC', 'CCGCGGTT', 'TTATAACC', 'GGACTTGG', 'AAGTCCAA', 'ATCCACTG', 'GCTTGTCA', 'CAAGCTAG', 'TGGATCGA', 'AGTTCAGG', 'GACCTGAA', 'TGACGAAT', 'CAGTAGGC', 'AGCCTCAT', 'GATTCTGC', 'TCGTAGTG', 'CTACGACA', 'TAAGTGGT', 'CGGACAAC', 'ATATGGAT', 'GCGCAAGC', 'AAGATACT', 'GGAGCGTC', 'ATGGCATG', 'GCAATGCA', 'GTTCCAAT', 'ACCTTGGC', 'CTTATCGG', 'TCCGCTAA', 'GCTCATTG', 'ATCTGCCA', 'CTTGGTAT', 'TCCAACGC', 'CCGTGAAG', 'TTACAGGA', 'GGCATTCT', 'AATGCCTC', 'TACCGAGG', 'CGTTAGAA', 'CACGAGCG', 'TGTAGATA', 'GATCTATC', 'AGCTCGCT', 'CGGAACTG', 'TAAGGTCA', 'TTGCCTAG', 'CCATTCGA', 'ACACTAAG', 'GTGTCGGA', 'TTCCTGTT', 'CCTTCACC', 'GCCACAGG', 'ATTGTGAA'])
         
     # Build up sample mapping from first round index to sample
     first_round_sample_lookup = get_first_round_sample_lookup(open(args.samplesheet), sample_idx_whitelist, tn5_idx_whitelist)
 
     if args.nextseq:
         gem_whitelist_rc = {reverse_complement(k):k for k in gem_idx_whitelist}
-        with open('/whitelist/scidrop_atac_10x_bc_nextseq.mismatch.pickle', 'rb') as bc10x:
-            gem_correction_map = pickle.load(bc10x)
-    else:
-        with open('/whitelist/scidrop_atac_10x_bc.mismatch.pickle', 'rb') as bc10x:
-            gem_correction_map = pickle.load(bc10x)
+        gem_idx_whitelist = set([reverse_complement(x) for x in gem_idx_whitelist])
 
     sample_correction_map = construct_mismatch_to_whitelist_map(sample_idx_whitelist, 2)
-    # gem_correction_map = construct_mismatch_to_whitelist_map(pcr_i7_whitelist, 2)
+    gem_correction_map = construct_mismatch_to_whitelist_map(gem_idx_whitelist, 2)
     tn5_correction_map = construct_mismatch_to_whitelist_map(tn5_idx_whitelist, 2)
 
     # Set up all input/output files
