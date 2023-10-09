@@ -1,4 +1,4 @@
-# sci Drop ATAC-seq
+# txci-ATAC-seq
 #### The scripts used in this repo are saved in 'pkgs', samplesheets are saved in 'samplesheets', and pbs files are saved in 'pbs'
 ## Generate FASTQ files
 ```
