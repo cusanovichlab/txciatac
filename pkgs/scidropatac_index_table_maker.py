@@ -36,7 +36,7 @@ def indexsplitter(indexrange):
 	return indexout
 
 cell_bc = []
-with open("/groups/darrenc/sbin/sciATAC/737K-cratac-v1.txt", 'r') as bc_10x:
+with open("/whitelist/737K-cratac-v1.txt", 'r') as bc_10x:
 	for ele in bc_10x:
 		cell_bc.append(ele.strip())
 
