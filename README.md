@@ -1,9 +1,35 @@
 # txci-ATAC-seq
-#### The scripts used in this repo are saved in 'pkgs', samplesheets are saved in 'samplesheets', and pbs files are saved in 'pbs'
+This pipeline is used for processing txci-ATAC-seq data, including removing Tn5 barcode (8bp) from Read 2 and appending it to the header, correcting barcodes, removing sequence adapters, and aligning, filtering, and deduplicating reads, and generating species-specific read count report for mixed species assay.  
+The scripts used in this repo are saved in the 'pkgs' folder, and example samplesheets are provided in the 'samplesheet_example' folder
+
+## Packages required to install
+### Linux packages
+bcl2fastq, trimmomatic, bowtie2, samtools
+### Python packages
+argparse, pysam, pybedtools, Bio.SeqIO.QualityIO
+### R packages
+mclust
+## Define the Output directory and the path to the pkgs folder and Rscript
+```
+OUTDIR=/path/to/outdir
+path=/path/to/pkgs
+Rscript=/path/to/Rscript
+```
+## Generate following folders
+```
+mkdir $OUTDIR/fastqs
+mkdir $OUTDIR/fastqs/add_bc
+mkdir $OUTDIR/fastqs/bc_correct
+mkdir $OUTDIR/bams
+mkdir $OUTDIR/samplesheet
+mkdir $OUTDIR/reports
+mkdir $OUTDIR/scripts
+mkdir $OUTDIR/scripts/mk_idx_tb
+```
 ## Generate FASTQ files
 ```
-OUTDIR=/PATH/To/OUTDIR
-bcl_dir=/PATH/To/BCL DIR
+OUTDIR=/PATH/To/Output/Directory
+bcl_dir=/PATH/To/BCL/Directory
 
 mkdir $OUTDIR/fastqs
 mkdir $OUTDIR/fastqc
