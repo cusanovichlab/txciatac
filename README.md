@@ -58,13 +58,11 @@ python $path/pkgs/scidropatac_add_bc.py \
 -o $OUTDIR/fastqs/add_bc/$base
 ```
 ## Correct barcode
-Use -X option for data sequenced on NextSeq platform.  
+In the sample sheet, the value/range before ":" is the index position (One-based indexing) of the P7 sample barcode, and the value/range after ":" is the index position (One-based indexing) of the Tn5 barcode (row-wisely ordered on a 96-well plate).
 
-Samples will be demultiplexed by the P7 sample barcode + Tn5 barcode provided in the sample sheet.  
+During barcode correction, samples can be demultiplexed using the combination of the P7 sample barcode and Tn5 barcode if the barcode indices of each sample are provided on separate lines within the sample sheet. However, as a standard practice, We do not perform sample demultiplexing at this step. Therefore, we specify all possible barcode indices for all samples on a single line.  
 
-We usually do not demultiplex samples at this step by providing all possible barcodes.  
-
-In the sample sheet, the value/range before ":" is the index position () of the P7 sample barcode, and the value/range after ":" is the index position () of the Tn5 barcode (row-wisely ordered on a 96-well plate).
+Use the "-X" option for data sequenced on the NextSeq platform.  
 
 The output file name is in a format of "${base}.${sample id in samplesheet}_R1.fastq.gz".
 ```
