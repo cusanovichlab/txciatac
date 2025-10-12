@@ -36,24 +36,24 @@ if indextable != 'NA':
 print("Counting total reads...")
 bamfile = pysam.AlignmentFile(inputbam, 'rb')
 
-for read in  bamfile.fetch():
-	tagger = read.query_name.split(':')[0]
-	try:
-		totalct[tagger] += 1
-	except KeyError:
-		totalct[tagger] = 1
-		#species1ct[tagger] = 0
-		#species2ct[tagger] = 0
-		species1dhsct[tagger] = 0
-		#species2dhsct[tagger] = 0
-		try:
-			descriptor[tagger] = descdic[tagger]
-		except KeyError:
-			descriptor[tagger] = 'bkgd'
-	# if 'hg38' in bamfile.getrname(read.reference_id):
-		# species1ct[tagger] += 1
-	# if 'mm10' in bamfile.getrname(read.reference_id):
-		# species2ct[tagger] += 1
+# for read in  bamfile.fetch():
+	# tagger = read.query_name.split(':')[0]
+	# try:
+		# totalct[tagger] += 1
+	# except KeyError:
+		# totalct[tagger] = 1
+		# species1dhsct[tagger] = 0
+		# try:
+			# descriptor[tagger] = descdic[tagger]
+		# except KeyError:
+			# descriptor[tagger] = 'bkgd'
+
+for read in bamfile.fetch():
+    tagger = read.query_name.split(':')[0]
+    totalct[tagger] = totalct.get(tagger, 0) + 1
+    species1dhsct.setdefault(tagger, 0);
+    if tagger not in descriptor:
+        descriptor[tagger] = descdic.get(tagger, 'bkgd')
 
 bamfile.close()
 
@@ -102,7 +102,7 @@ with open(outfile, 'w') as outter:
 	for tag in sorted(totalct.keys()):
 		outter.write(
 			f"{tag}\t{descriptor[tag]}\t{totalct[tag]}\t{species1dhsct[tag]}\n"
-		)	
+		)
 # outter = open(outfile,'w')
 # print >> outter, 'Tag\tTotal\t' + type1desc
 # for tag in sorted(totalct.keys()):
