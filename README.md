@@ -9,7 +9,7 @@ bcl2fastq, trimmomatic, bowtie2, samtools, pypy, macs2 and bedtools
 ### Python packages
 argparse, pysam, pybedtools, Bio.SeqIO.QualityIO
 ### R packages
-mclust
+mclust tidyverse Matrix
 ## Define the output directory and the path for this repo and Rscript
 ```
 OUTDIR=/path/to/outdir
